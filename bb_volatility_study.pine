@@ -1,0 +1,30 @@
+// This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © zmwilliam
+
+// Plot Bollinger Bands
+// buy signal: when a candle closes bellow the lower band and the next one closes above the lower band
+//  identify the signal candle with a green arrow and a "Buy" text
+// sell signal: when a candle closes abrove the upper band and the next one closes bellow the upper band
+//  identify the signal candle with a red arrow and a "Sell" text
+// neutral candles must be transparent
+
+//@version=4
+study("Bollinger Bands Volatility Setup", "BB Volatility Setup", overlay=true)
+
+in_lenght = input(defval=20, minval=1, title="BB length")
+in_std_dev = input(defval=2, minval=0.5, title="BB standard deviation")
+
+[basis, upper, lower] = bb(close, in_lenght, in_std_dev)
+
+buy_signal = close[1] < lower and close > lower
+sell_signal = crossover(close[1], upper) and crossunder(close, upper)
+
+plot(upper, "Upper Band", color = color.aqua)
+plot(basis, "Basis", color = color.red)
+plot(lower, "Lower Band", color = color.aqua)
+
+color_transp = color.new(color.black, transp = 100)
+barcolor(not buy_signal and not sell_signal ? color_transp : na)
+
+plotshape(buy_signal, title="Buy Signal", style=shape.arrowdown, color=color.green, text='BUY', textcolor=color.green)
+plotshape(sell_signal, title="Sell Signal", style=shape.arrowdown, color=color.red, text='SELL', textcolor=color.red)
