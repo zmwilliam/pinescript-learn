@@ -1,0 +1,26 @@
+// This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © zmwilliam
+
+// Plot Bollinger Bands
+// buy signal: the candle that closes over the upper band
+//  identify the signal candle with a grenn triangle and a "Buy" text
+// sell signal: the candle that closes under the lower band
+//  identify the signal candle with a red triangle and a "Sell" text
+
+//@version=4
+study("Bollinger Bands setup", "BB setup", overlay=true)
+
+in_lenght = input(defval=20, minval=1, title="BB length")
+in_std_dev = input(defval=2, minval=1, title="BB standard deviation")
+
+[basis, upper, lower] = bb(close, in_lenght, in_std_dev)
+
+buy_signal = crossover(close, upper)
+sell_signal = crossunder(close, lower)
+
+plot(upper, "Upper Band", color = color.aqua)
+plot(basis, "Basis", color = color.red)
+plot(lower, "Lower Band", color = color.aqua)
+
+plotshape(buy_signal, title="Buy Signal", style=shape.triangledown, color=color.green, text='BUY', textcolor=color.green)
+plotshape(sell_signal, title="Sell Signal", style=shape.triangledown, color=color.red, text='SELL', textcolor=color.red)
