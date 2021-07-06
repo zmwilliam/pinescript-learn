@@ -1,0 +1,42 @@
+// This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © zmwilliam
+
+//MACD
+//  Buy signal: when histogram turns up
+//      Paint buy candle with green
+//  Sell signal: when histogram turns down
+//      Paint sell candle with red
+//
+//  Neutral bars must be transperent
+
+
+//@version=4
+study("MACD reversion")
+
+source = input(title="Source", defval=close, type=input.source)
+fast_length = input(title="Fast length", defval=12, type=input.integer)
+slow_length = input(title="Slow length", defval=26, type=input.integer)
+signal_length = input(title="Signal length", defval=9, minval=1, maxval=50, type=input.integer)
+
+[macd_line, signal_line, hist_line] = macd(source, fast_length, slow_length, signal_length)
+
+greens = #26A69A
+greenl = #B2DFDB
+reds = #EF5350
+redl = #FFCDD2
+
+is_hist_growing(hist_line) => hist_line[1] < hist_line
+
+hist_color = if hist_line > 0 
+    hist_line[1] < hist_line ? greens : greenl
+else 
+    hist_line[1] < hist_line ? redl : reds
+
+plot(hist_line, title="Histogram", style=plot.style_columns, color=hist_color)
+
+buy_signal = hist_line < 0 and hist_line > hist_line[1] and hist_line[1] < hist_line[2]
+sell_signal = hist_line >= 0 and hist_line < hist_line[1] and hist_line[1] > hist_line[2]
+
+var color_transp = color.new(color.black, transp = 100)
+color_bar = buy_signal ? color.green : sell_signal ? color.red : color_transp
+barcolor(color_bar)

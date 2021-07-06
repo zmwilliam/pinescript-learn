@@ -1,0 +1,45 @@
+// This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © zmwilliam
+
+// Larry Williams 9.1
+//
+//  Setup LONG
+//      Entry: breaking the max of the candle that turned up the EMA 9 (signal candle)
+//          Signal candle must be green 
+//      Stop: min of the signal candle
+//      Target: breaking the min of the candle that turn down the EMA 9
+//
+//  Setup SHORT
+//      Entry: breaking the min of candle taht turned down the EMA 9
+//          Signal candle mus be red
+//      Stop: max of the signal candle
+//      Target: breaking the max of the candle that turns up the EMA 9
+//
+//  Add an input gap % for entry
+//  Identify gaps with a triangle
+
+
+//@version=4
+study("Larry Williams 9.1", "LW 9.1", overlay=true)
+entry_gap = input(defval=0.15, minval=0, maxval=100, title="Entry Gap %") / 100
+
+ema9 = ema(close, 9)
+color_ema9 = ema9 >= ema9[1] ? color.green : color.red
+
+buy_signal = ema9 > ema9[1] and ema9[1] < ema9[2]
+sell_signal = ema9 < ema9[1] and ema9[1] > ema9[2]
+
+gap_buy = buy_signal ? high*(1+entry_gap) : na
+gap_sell = sell_signal ? low*(1+entry_gap) : na
+
+color_transp = color.new(color.black, transp = 100)
+
+color_bar = buy_signal ? color.green : sell_signal ? color.red : color_transp
+
+plot(ema9, title="EMA 9", color=color_ema9, linewidth=2)
+
+barcolor(color_bar)
+
+plotshape(gap_buy, title="Buy signal", style=shape.triangleup, color=color.blue, text="Buy", textcolor=color.green, size=size.tiny)
+plotshape(gap_sell, title="Sell signal", style=shape.triangledown, color=color.blue, text="Sell", textcolor=color.red, size=size.tiny)
+

@@ -1,0 +1,34 @@
+// This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © zmwilliam
+
+//RSI
+//  User input length, upper band, lower band
+//  Plot RSI + bands
+//
+//  Buy signal: when RSI is bellow the lower band and turns up
+//      Identify buy candle as green
+//  Sell signal: when RSI is above the upper band and turns down
+//      Identify sell candle as red
+//
+//  Neutral candles must be transperent
+
+//@version=4
+study("RSI Setup", overlay=false)
+
+len = input(title="Length", defval=14, minval=1, type=input.integer)
+upper = input(title="Upper band", defval=70, minval=0, type=input.integer)
+lower = input(title="Lower band", defval=30, minval=0, type=input.integer)
+
+rsi = rsi(close, len)
+
+buy_signal = rsi[1] < lower and rsi > rsi[1]
+sell_signal = rsi[1] > upper and rsi < rsi[1]
+
+color_transp = color.new(color.black, transp = 100)
+color_bar = buy_signal ? color.green : sell_signal ? color.red : color_transp
+barcolor(color_bar)
+
+orange_50 = color.new(color.orange, transp = 50)
+plot(upper, title="Upper band", color=orange_50, style=plot.style_stepline)
+plot(lower, title="Lower band", color=orange_50, style=plot.style_stepline)
+plot(rsi, title="RSI", color=color.purple)
