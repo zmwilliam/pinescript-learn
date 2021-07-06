@@ -1,0 +1,37 @@
+// This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © zmwilliam
+
+//Two EMAs, one slow and one fast
+//  buy signal: when fast cross over slow
+//      and close is above SMA200 (when filter is enabled)
+//  sell signal: when fast cross under slow
+//      and close is bellow SMA200 (when filter is enabled)
+//Output
+// plot both emas
+// plot SMA200 line when filter is enabled
+// buy signal: color the candle with green
+// sell signal: color the candle with red
+
+//@version=4
+study(title="EMA crossing indicator", shorttitle="EMA crossing", overlay=true)
+
+in_ema_fast = input(defval=21, title="Fast EMA")
+in_ema_slow = input(defval=50, title="Slow EMA")
+filter_on = input(defval=false, title="Enable SMA200D Filter", type=input.bool)
+
+val_ema_fast = ema(close, in_ema_fast)
+val_ema_slow = ema(close, in_ema_slow)
+sma200 = security(syminfo.tickerid, 'D', sma(close, 200))
+
+buy_signal = filter_on ? close > sma200 and crossover(val_ema_fast, val_ema_slow) : crossover(val_ema_fast, val_ema_slow)
+sell_signal = filter_on ? close < sma200 and crossunder(val_ema_fast, val_ema_slow) : crossunder(val_ema_fast, val_ema_slow)
+
+
+plot(val_ema_fast, title="Fast EMA", color=color.lime)
+plot(val_ema_slow, title="Slow EMA", color=color.purple)
+plot(filter_on ? sma200 : na, title="SMA200D filter", color=color.yellow)
+
+color_neutral = color.new(color.black, transp = 100)
+color_bar = buy_signal ? color.green : sell_signal ? color.red : color_neutral
+    
+barcolor(color_bar)
